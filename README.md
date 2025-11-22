@@ -1,6 +1,6 @@
 [![Test Package](https://github.com/jgriss/FusionSolarPy/actions/workflows/test.yaml/badge.svg)](https://github.com/jgriss/FusionSolarPy/actions/workflows/test.yaml)
-![PyPI - Version](https://img.shields.io/pypi/v/fusion_solar_py)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/fusion_solar_py)
+[![PyPI - Version](https://img.shields.io/pypi/v/fusion_solar_py)](https://pypi.org/project/fusion-solar-py/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/fusion_solar_py)](https://pypistats.org/packages/fusion-solar-py)
 
 # FusionSolarPy
 
