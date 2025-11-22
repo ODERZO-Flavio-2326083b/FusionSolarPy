@@ -166,17 +166,16 @@ class FusionSolarClientTest(TestCase):
         self.assertRaises(AuthenticationException, FusionSolarClient, self.user, self.password, "region04eu5")
 
     def test_session_reuse(self):
-        session = requests.Session()
-
-        client = FusionSolarClient(self.user, self.password, self.subdomain, session=session)
+        client = FusionSolarClient(self.user, self.password, self.subdomain)
 
         stats = client.get_power_status()
 
         self.assertIsNotNone(stats)
         plant_ids = client.get_plant_ids()
+        cookies = client.get_cookies()
 
         # create a second client using the session
-        client2 = FusionSolarClient(self.user, self.password, self.subdomain, session=session)
+        client2 = FusionSolarClient(self.user, self.password, self.subdomain, cookies=cookies)
 
         stats2 = client2.get_power_status()
 
@@ -188,8 +187,8 @@ class FusionSolarClientTest(TestCase):
         # now the session should be fine
         self.assertTrue(client.is_session_active())
 
-        # add an invalid session object
-        client = FusionSolarClient(self.user, self.password, self.subdomain, session=requests.Session())
+        # add an invalid cookies object
+        client = FusionSolarClient(self.user, self.password, self.subdomain, cookies={"a": "b"})
 
         self.assertFalse(client.is_session_active())        
 

@@ -208,7 +208,7 @@ class FusionSolarClient:
 
     def __init__(
         self, username: str, password: str, huawei_subdomain: str = "region01eu5",
-        session: Optional[requests.Session] = None, captcha_model_path: Optional[str] = None, captcha_device: Optional[Any] = ['CPUExecutionProvider']
+        cookies: Optional[dict] = None, captcha_model_path: Optional[str] = None, captcha_device: Optional[Any] = ['CPUExecutionProvider']
     ) -> None:
         """Initialiazes a new FusionSolarClient instance. This is the main
            class to interact with the FusionSolar API.
@@ -220,8 +220,8 @@ class FusionSolarClient:
         :param huawei_subdomain: The FusionSolar API uses different subdomains for different regions.
                                  Adapt this based on the first part of the URL when you access your system.
         :type huawei_subdomain: str
-        :param session: An optional requests session object. If not set, a new session will be created.
-        :type session: requests.Session
+        :param cookies: An optional dict containing cookies to be used to create the initial session
+        :type session: dict
         :param captcha_model_path: Path to the weights file for the captcha solver. Only required if you want to use the auto captcha solver
         :type captcha_model_path: str
         :param captcha_device : The device to run the captcha solver on, as list of execution providers. Only required if you want to use the auto captcha solver.
@@ -231,10 +231,12 @@ class FusionSolarClient:
         self._user = username
         self._password = password
         self._captcha_verify_code = None
-        if session is None:
-            self._session = requests.Session()
-        else:
-            self._session = session
+        self._session = requests.Session()
+
+        # set the initial cookies if set
+        if cookies is not None:
+            self._session.cookies.update(cookies)
+
         self._huawei_subdomain = huawei_subdomain
         # hierarchy: company <- plants <- devices <- subdevices
         self._company_id = None
@@ -249,10 +251,21 @@ class FusionSolarClient:
         self.captcha_device = captcha_device
         self._captcha_solver = None
 
-        # Only login if no session has been provided. The session should hold the cookies for a logged in state
-        if session is None:
+        # Only login if no cookies were provided. The cookies should represent a logged-in state.
+        if cookies is None:
             self._configure_session()
 
+    def get_cookies(self) -> dict:
+        """Returns the current cookies as a dict. Can be used to reuse a session.
+
+        :return: A dict of cookies
+        :rtype: dict
+        """
+        if self._session is None:
+            return {}
+        
+        return self._session.cookies.get_dict()
+    
     def log_out(self):
         """Log out from the FusionSolarAPI
         """

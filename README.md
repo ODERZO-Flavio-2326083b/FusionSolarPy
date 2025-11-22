@@ -181,30 +181,41 @@ client = FusionSolarClient(
 )
 ```
 
-### Session reuse
+### Session reuse (Changed in V0.1.0)
 
-In case you have to reestablish the connection to the API many times (e.g. for usage with Telegraf), you might want to reuse the session. This can be done by passing the `session` parameter to the client. The session needs to be a `requests.Session` object. If you don't pass a session, a new one will be created.
+In case you have to reestablish the connection to the API many times (e.g. for usage with Telegraf), you might want to reuse the session. This can be done by storing the cookies of the previous session and reusing them.
+
 Reusing a session will significantly reduce the chance of getting a captcha, since the API counts logins, not hits for rate limiting.
 
 ```python
-import requests
-import pickle
+# set logging to debug so you can monitor requests
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# create a client
 from fusion_solar_py.client import FusionSolarClient
 
-session = requests.Session()
+# this call triggers quite a few requests in order to log in
 client = FusionSolarClient(
     'my_user',
-    'my_password',
-    session=session
+    'my_password'
 )
 
-# To save the session for later use (e.g. if you have to run the script multiple times), you can use pickle and save the session to the disk
-with open('session.pkl', 'wb') as f:
-    pickle.dump(session, f)
+# To save the session for later use get all cookies as a dict
+cookies = client.get_cookies()
 
-# To load the session, you can use pickle again
-with open('session.pkl', 'rb') as f:
-    session = pickle.load(f)
+# cookies can now be saved using pickle or as a JSON file
+
+# to reuse the cookies, simply pass them to the constructor of the client
+# this call should now not trigger any requests
+new_client = FusionSolarClient(
+    'my_user',
+    'my_password',
+    cookies=cookies
+)
+
+# the session is still there
+new_client.is_session_active()
 ```
 
 ### Keeping a session alive
@@ -212,7 +223,7 @@ with open('session.pkl', 'rb') as f:
 The new API version seems to use explicit functions to keep a session alive. Their usage is currently only derived from the web application. In order to support these calls, two new functions were added to the library in version 0.0.23.
 
   * **is_session_active**: This checks, whether the session is still active and should be called around every 10 seconds.
-  * **keep_alive**: Potentially, this call tells the API to no discard the session. The web app calls this end-point around every 30 seconds.
+  * **keep_alive**: Potentially, this call tells the API to not discard the session. The web app calls this end-point around every 30 seconds.
 
 ## Available plant data / stats
 

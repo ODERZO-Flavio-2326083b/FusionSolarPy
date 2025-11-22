@@ -1,3 +1,11 @@
+# 0.1.0
+
+  * **BREAKING CHANGE**: Session reuse was changed to a more robust method. 
+    The new client function `get_cookies` can be used to fetch all cookies 
+    as a `dict` object. This can then be passed to the new constructor 
+    parameter `cookies=`.
+  * The `session` parameter in the constructor was removed.
+
 # 0.0.28
 
   * Added new function get_inverter_day_stats (by jgonzalezzitu)
