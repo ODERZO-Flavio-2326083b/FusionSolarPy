@@ -574,6 +574,45 @@ class FusionSolarClient:
         return power_obj["data"]
 
     @logged_in
+    def get_device_real_kpi(self, device_id: str, signal_ids: list[int] | list[str] = None) -> dict:
+        """
+        Retrieves measurements for the specified device and signals.
+        Each MPPT ID follow this logic :
+            Start at 11001. This ID corresponds to the voltage (V) of the first MPPT.
+            11002 corresponds to the intensity (A) of the first MPPT.
+            Add 2 to that (ends up being 11004) corresponds to the voltage (V) of the second MPPT.
+            11005 corresponds to the second MPPT's intensity (A)
+            And so on.
+        :param device_id: the device ID
+        :param signal_ids: signal ids to query
+
+        :return: a dict containing the asked data
+        """
+
+        if signal_ids is None:
+            # generates the 20 first MPPT IDs for voltage and intensity.
+            signal_ids = [val for i in range(10) for val in (11001 + i * 3, 11002 + i * 3)]
+
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-real-kpi"
+        params = {
+            "deviceDn": device_id,
+            "signalIds": signal_ids,
+            "_": round(time.time() * 1000),
+        }
+
+        r = self._session.get(url=url, params=params)
+        r.raise_for_status()
+
+        # errors in decoding the object generally mean that the login expired
+        # this is handeled by @logged_in
+        data_obj = r.json()
+
+        if "data" not in data_obj:
+            raise FusionSolarException("Failed to retrieve plant data.")
+
+        return data_obj["data"]
+
+    @logged_in
     def get_plant_ids(self) -> list:
         """Get the ids of all available stations linked
            to this account
