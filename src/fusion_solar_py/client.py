@@ -660,12 +660,13 @@ class FusionSolarClient:
 
 
     @logged_in
-    def get_device_ids(self) -> list:
-        """gets the devices associated to a given parent_id (can be a plant or a company/account)
+    def get_device_ids(self, parent_id: str = None) -> list:
+        """gets the devices associated to a given parent_id
+        :param parent_id: the parent_id (can be a plant or a company/account)
         returns a dictionary mapping device_type to device_id"""
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/config/device/v1/device-list"
         params = {
-            "conditionParams.parentDn": self._company_id,  # can be a plant or company id
+            "conditionParams.parentDn": self._company_id if parent_id is None else parent_id,  # can be a plant or company id
             "conditionParams.mocTypes": "20814,20815,20816,20819,20822,50017,60066,60014,60015,23037",  # specifies the types of devices
             "_": round(time.time() * 1000),
         }
