@@ -574,7 +574,7 @@ class FusionSolarClient:
         return power_obj["data"]
 
     @logged_in
-    def get_device_real_kpi(self, device_id: str, signal_ids: list[int] | list[str] = None) -> dict:
+    def get_device_data(self, device_id: str, signal_ids: list[int] | list[str] = None) -> dict:
         """
         Retrieves measurements for the specified device and signals.
         Each MPPT ID follow this logic :
