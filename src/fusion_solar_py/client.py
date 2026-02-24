@@ -428,7 +428,7 @@ class FusionSolarClient:
         )
 
         # the new API returns a 500 exception if the subdomain is incorrect
-        if r.status_code == 500:
+        if r.status_code in [500, 400]:
             try:
                 data = r.json()
 
@@ -678,6 +678,8 @@ class FusionSolarClient:
         for device in device_data["data"]:
             devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
         return devices
+
+
     @logged_in
     def get_historical_data(self, signal_ids: list[str] = ['30014', '30016', '30017'], device_dn:str = None, date: datetime = datetime.now() ) -> dict:
         """retrieves historical data for specified signals and device
