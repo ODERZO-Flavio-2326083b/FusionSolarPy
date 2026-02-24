@@ -81,7 +81,7 @@ class FusionSolarClientTest(TestCase):
 
         device_ids = client.get_device_ids()
         inverters = list(filter(lambda e: e['type'] == 'Inverter', device_ids))
-        inverter_id = 'NE=190024725' #inverters[0]['deviceDn']
+        inverter_id = inverters[0]['deviceDn']
 
         device_data = client.get_device_data(inverter_id, [11001, 11002])
 
